@@ -15,18 +15,18 @@ class SQLighter:
     def subscriber_exists(self, user_id):
         """Проверяем, есть ли уже юзер в базе"""
         with self.connection:
-            result = self.cursor.execute('SELECT * FROM `users` WHERE `user_id` = ?', (user_id,)).fetchall()
+            result = self.cursor.execute('SELECT * FROM `users` WHERE `user_id` = ? ', (user_id,)).fetchall()
             return bool(len(result))
 
-    def add_subscriber(self, user_id, status = True):
+    def add_subscriber(self, user_id, first_name, last_name, status = True):
         """Добавляем нового подписчика"""
         with self.connection:
-            return self.cursor.execute("INSERT INTO `users` (`user_id`, `status`) VALUES(?,?)", (user_id,status))
+            return self.cursor.execute("INSERT INTO `users` (`user_id`, `first_name`, `last_name`, `status`) VALUES(?,?,?,?)", (user_id, first_name, last_name, status))
 
     def update_subscription(self, user_id, status):
         """Обновляем статус подписки пользователя"""
         with self.connection:
-            return self.cursor.execute("UPDATE `users` SET `status` = ? WHERE `user_id` = ?", (status, user_id))
+            return self.cursor.execute("UPDATE `users` SET `status` = ? WHERE `user_id` = ?", (status, user_id,))
 
     def view(self, id):
         with self.connection:

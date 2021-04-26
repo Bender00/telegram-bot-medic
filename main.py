@@ -8,8 +8,6 @@ reload(sys)
 from aiogram import Bot, Dispatcher, executor, types
 from sqlighter import SQLighter
 
-
-
 # задаем уровень логов
 logging.basicConfig(level=logging.INFO)
 
@@ -25,12 +23,14 @@ def parse_text_db():
 	with open('test/endokrynka/' + str(random.randint(1, 90)) + '.txt', mode='r', encoding='utf-8') as f:
 		homework = f.read()
 	return homework
+
 # Команда активации подписки
 @dp.message_handler(commands=['subscribe'])
 async def subscribe(message: types.Message):
+
 	if(not db.subscriber_exists(message.from_user.id)):
 		# если юзера нет в базе, добавляем его
-		db.add_subscriber(message.from_user.id)
+		db.add_subscriber(message.from_user.id, message.from_user.first_name, message.from_user.last_name)
 	else:
 		# если он уже есть, то просто обновляем ему статус подписки
 		db.update_subscription(message.from_user.id, True)
@@ -42,7 +42,7 @@ async def subscribe(message: types.Message):
 async def unsubscribe(message: types.Message):
 	if(not db.subscriber_exists(message.from_user.id)):
 		# если юзера нет в базе, добавляем его с неактивной подпиской (запоминаем)
-		db.add_subscriber(message.from_user.id, False)
+		db.add_subscriber(message.from_user.id, message.from_user.first_name, message.from_user.last_name, False)
 		await message.answer("Вы итак не подписаны.")
         
 	else:
@@ -58,13 +58,25 @@ markup.add(item1)
 
 # добавляємо кнопки
 @dp.message_handler(commands=['start'])
+async def welcome(message):
+	# відправляємо стікер та привітання
+	sti = open('image/stickers/sticker.webp', 'rb')
+	await message.answer_sticker(sti)
+	
+	bot_name = await bot.get_me() # дані про бота
+
+	await message.reply("Привет {0.first_name}!\n Я - {1.first_name}. I'm Going To Build My Own Theme Park! With Blackjack! And Hookers!".format(message.from_user, bot_name, parse_mode='html'))
 async def process_start_command(message: types.Message):
     await message.reply("Привет!", reply_markup=markup)
 
 # Кнопка " Рандомне питання"
 @dp.message_handler(lambda message: message.text == "🎲 Рандомне питання")
 async def random_btn(message: types.Message):
-    await message.answer(parse_text_db(), parse_mode='html')
+
+	user_name = message.from_user.first_name
+	print(user_name, message.from_user.last_name, message.from_user.first_name)
+	
+	await message.answer(parse_text_db(), parse_mode='html')
 
 # запускаем лонг поллинг
 if __name__ == '__main__':
