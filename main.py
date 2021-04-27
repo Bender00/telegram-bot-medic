@@ -1,11 +1,14 @@
 # - *- coding: utf- 8 - *-
-import config
 import logging
 import random
 import sys
 from importlib import reload
+
+import config
+
 reload(sys)
 from aiogram import Bot, Dispatcher, executor, types
+
 from sqlighter import SQLighter
 
 # задаем уровень логов
@@ -52,9 +55,10 @@ async def unsubscribe(message: types.Message):
 
 # keyboard
 item1 = types.KeyboardButton('🎲 Рандомне питання')
+item2 = types.KeyboardButton('Обрати предмет')
 
 markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-markup.add(item1)
+markup.add(item1, item2)
 
 # добавляємо кнопки
 @dp.message_handler(commands=['start'])
@@ -77,6 +81,11 @@ async def random_btn(message: types.Message):
 	print(user_name, message.from_user.last_name, message.from_user.first_name)
 	
 	await message.answer(parse_text_db(), parse_mode='html')
+
+#кнопка "Обрати предмет"
+@dp.message_handler(lambda message: message.text == "Обрати предмет")
+async def btn_viborka(Message: types.Message):
+	print('fdafsfsf')
 
 # запускаем лонг поллинг
 if __name__ == '__main__':
